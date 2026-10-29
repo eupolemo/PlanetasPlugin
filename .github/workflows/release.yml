@@ -15,6 +15,9 @@ env:
   # Slug do projeto em cada plataforma. Precisa casar com o que foi criado no site.
   HANGAR_SLUG: 'PlanetasPlugin'
   MODRINTH_SLUG: 'planetasplugin'
+  # A API v2 exige o id base62 do projeto em project_id — slug da 400
+  # ("Base62 decoding overflowed"). Pegue em modrinth.com/dashboard/projects.
+  MODRINTH_PROJECT_ID: 'xTAM4fta'
 
 jobs:
   release:
@@ -82,6 +85,12 @@ jobs:
             exit 1
           fi
 
+          if curl -fsS -o /dev/null -H "Authorization: HangarAuth ${JWT}" \
+            "https://hangar.papermc.io/api/v1/projects/${HANGAR_SLUG}/versions/${VERSION}"; then
+            echo "versao $VERSION ja existe no Hangar — pulando."
+            exit 0
+          fi
+
           jq -n \
             --arg version "$VERSION" \
             --arg desc "Release $GITHUB_REF_NAME. Notas: https://github.com/${GITHUB_REPOSITORY}/releases/tag/${GITHUB_REF_NAME}" \
@@ -113,17 +122,25 @@ jobs:
             exit 0
           fi
 
+          if curl -fsS -o /dev/null \
+            -H "Authorization: ${MODRINTH_TOKEN}" \
+            -H "User-Agent: eupolemo/PlanetasPlugin/${VERSION} (github.com/${GITHUB_REPOSITORY})" \
+            "https://api.modrinth.com/v2/project/${MODRINTH_PROJECT_ID}/version/${VERSION}"; then
+            echo "versao $VERSION ja existe no Modrinth — pulando."
+            exit 0
+          fi
+
           jq -n \
             --arg name "PlanetasPlugin $VERSION" \
             --arg version "$VERSION" \
-            --arg slug "$MODRINTH_SLUG" \
+            --arg project "$MODRINTH_PROJECT_ID" \
             --arg changelog "Release $GITHUB_REF_NAME. Notas: https://github.com/${GITHUB_REPOSITORY}/releases/tag/${GITHUB_REF_NAME}" \
             --argjson mc "$MC_VERSIONS" \
             '{
                name: $name,
                version_number: $version,
                changelog: $changelog,
-               project_id: $slug,
+               project_id: $project,
                dependencies: [],
                game_versions: $mc,
                version_type: "release",
