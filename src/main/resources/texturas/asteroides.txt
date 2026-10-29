@@ -1,0 +1,45 @@
+; Asteroides - rocha condritica; textura compartilhada por todos os corpos do cinturao
+; Grade equiretangular 72x36 (celulas de 5 graus).
+; Um corpo do cinturao e pequeno: poucos blocos leem a textura.
+; A forma irregular vem de 'campo.irregularidade' no config.yml.
+; Legenda: '= <simbolo> <BLOCO>'. Edite para trocar o material.
+72 36
+= . STONE   ; rocha
+= o DEEPSLATE   ; material escuro
+= # ANDESITE   ; regolito claro
+##########ooooooooooooooooooooooooooooooooooooo#########################
+##########ooooooooooooooooooooooooooooooooooooooo#######################
+######.............oooooooooooooooooooooooooooooooo#####################
+####.........####.....ooooooooooooooooooooooooooooooo###################
+#.........##########.....oooooooooooooooooooooooooooooo#################
+.........############.......ooooooooooooooooooooooooooooooo###########..
+..........##########...........oooooooooooooooooooooooooooooooooo.......
+...........########.................oooooo...ooooooooooooooooo..........
+.............####...............................ooooooooooo.............
+...................................................oooo.................
+..................................................ooooooo...............
+.................................................ooooooooo.....####.....
+........##......................................oooooooooo....#####.....
+###....####.....................................ooooooooooo...#####....#
+####...####.....................................ooooooooooo....####...##
+####...####.....oooo.............................ooooooooo......##....##
+####...........oooooo............................ooooooooo............##
+###...........ooooooo.............................ooooooo..............#
+..............oooooooo.............................oooo.................
+..............oooooooo..................................................
+..............ooooooo...........................................ooo.....
+...............oooooo.........................................oooooooo..
+................oooo.........................................oooooooooo.
+.............................................................oooooooooo.
+............................................................oooooooooooo
+o...........................................................oooooooooooo
+oo......................................................##..oooooooooooo
+oo....................................................#######ooooooooooo
+ooo.......................ooooooooooooooo............########ooooooooooo
+oo....................ooooooooooooooooooooooo........########ooooooooooo
+oo.................ooooooooooooooooooooooooooooo......#######.oooooooooo
+...............ooooooooooooooooooooooooooooooooooooo............ooooooo.
+...........ooooooooooooooooooooooooooooooooooooooooooooo................
+ooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo.....
+oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo
+oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo

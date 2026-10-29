@@ -1,0 +1,43 @@
+; Ganimedes - a maior lua do sistema solar; terreno sulcado e antigo
+; Grade equiretangular 72x36 (celulas de 5 graus).
+; Legenda: '= <simbolo> <BLOCO>'. Edite para trocar o material.
+72 36
+= . LIGHT_GRAY_CONCRETE   ; terreno sulcado
+= # GRAY_CONCRETE   ; terreno intermediario
+= o DEEPSLATE   ; terreno antigo e escuro
+oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo
+oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo
+oooooooooooooooooooooooooooooooooooooo########...ooooooooooooooooooooooo
+oooooooooooooooooooooooooooooooooooooo#########.......oooooooooooooooooo
+ooooooooooooooooooo.oooooooooooooooooo.##########........#oooooooooooooo
+oooooooooooooooo.....oooooooooooooooo...###########.......###ooooooooooo
+ooooooooooooo####......oooooooooooo.......###########.......####oooooooo
+ooooooooo#########.......oooooooo###........##########........#####ooooo
+##........##########........##########.......oooooo#####........########
+####.....oo###########.......###########....oooooooo######.......#######
+######.oooooo###########.......###########..oooooooo########.......#####
+#######oooooo..##########........##########.oooooooo#########.....ooooo#
+o#####oooooooo...##########........#########ooooooo..##########..ooooooo
+o######oooooo.....###########.ooooo.##########oooo....##########oooooooo
+oo#####oooooo.......#########ooooooo..###########.......#######ooooooooo
+oo..#####oo###........######oooooooo....##########........#####ooooooooo
+oo....##########........####oooooooo......##########........###ooooooooo
+oo.....#####ooooo#......oooooooooooo.......###########.......##ooooooooo
+oo.......##oooooooo#..oooooooooooooo##.......###########.......#oooooooo
+o##.......oooooooooo#oooooooooooooo####........##########.......oooooooo
+o####....ooooooooooo#ooooooooooooo#######........##########......ooooooo
+#######..ooooooooooooooooooooooo###########.......###########.....ooooo#
+#########oooooooooooooooooooooooo.###########.......###########.......##
+#########oooooooooooooooooooooooo...##########......ooooo#######........
+..#######oooooooooooooooooooooooo.....##########...ooooooo########......
+...######oooooooooooooooooooooooo......###########ooooooooo#########....
+.....####ooooooooooooooooooooooo##.......#########ooooooooo###########..
+.......##oooooooooooooooooooooo####........#######ooooooooo..##########.
+#........ooooooooooooo.oooooo########........######ooooooo.....#########
+##oooooooooooooooooooo......###########.......###########.......########
+oooooooooooooooooooo###.......###########.......###########.......####oo
+oooooooooooooooooooo####........##########........##########........oooo
+ooooooooooooooooooooooo###........##########........##########...ooooooo
+ooooooooooooooooooooooooo###.......###########.......##########ooooooooo
+ooooooooooooooooooooooooooooo#.......###########.......####ooooooooooooo
+oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo

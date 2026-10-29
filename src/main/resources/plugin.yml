@@ -1,0 +1,27 @@
+name: ${project.name}
+version: ${project.version}
+main: com.eupolemo.planetasplugin.PlanetasPlugin
+api-version: '1.21'
+description: ${project.description}
+authors: [ Eupolemo ]
+website: https://github.com/eupolemo/PlanetasPlugin
+
+commands:
+  planetas:
+    description: Lista, inspeciona e renderiza os corpos do sistema solar
+    usage: /planetas [info <id>|render <id> [raio]|sistema|remover <id|sistema>|reload]
+    aliases: [ planeta, pl ]
+
+permissions:
+  planetas.use:
+    description: Usar /planetas
+    default: true
+  planetas.render:
+    description: Construir e desfazer um corpo
+    default: op
+  planetas.sistema:
+    description: Construir o sistema solar completo
+    default: op
+  planetas.reload:
+    description: Recarregar a configuracao do plugin
+    default: op

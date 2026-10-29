@@ -1,0 +1,446 @@
+# PlanetasPlugin - configuracao
+
+# Formato deste arquivo. Nao edite: o plugin usa para migrar configs antigas.
+versao-config: 4
+
+# Title mostrado quando o jogador entra num mundo ligado a um corpo pelo campo 'mundo'.
+avisar-no-join: true
+
+render:
+  # Raio usado quando /planetas render nao recebe raio e o corpo nao define um.
+  raio-padrao: 24
+  # Teto de seguranca. A casca cresce com o quadrado do raio.
+  raio-maximo: 64
+  # Blocos escritos por tick. Menor = mais lento e mais leve para o servidor.
+  blocos-por-tick: 1500
+  # Quantos chunks podem estar sendo carregados/gerados ao mesmo tempo. O gargalo de um render
+  # grande e a geracao de terreno, nao a escrita: o sistema completo passa por ~700 chunks.
+  # Subir acelera, mas pesa mais no disco e na CPU.
+  chunks-em-voo: 8
+  # Inclinacao usada por corpo que nao define a sua.
+  inclinacao-graus: 0.0
+  # Gira a textura em torno do eixo. Muda qual meridiano fica de frente.
+  rotacao-graus: 0.0
+  # Altura entre o jogador e a base do corpo.
+  altura-extra: 6
+
+# Layout do /planetas sistema.
+#
+# Distancias reais nao cabem: Netuno esta 78x mais longe do Sol que Mercurio. O layout comprime
+# com  distancia = unidade * UA^compressao.  Com compressao 1.0 a escala e linear e o modelo fica
+# impraticavel; abaixo disso os corpos externos se aproximam, preservando a ordem sem exigir uma
+# caminhada de horas. Os corpos saem do Sol no sentido +X.
+sistema:
+  unidade: 500
+  compressao: 0.42
+  # Espaco entre um corpo e as luas enfileiradas ao lado dele.
+  folga-luas: 6
+  # Corpos de cinturao por 100 blocos de circunferencia. Subir isso encarece rapido:
+  # o Cinturao de Kuiper tem ~14 mil blocos de volta.
+  densidade-faixa: 2.0
+  # Espessura de um cinturao no sistema, em BLOCOS (nao fracao do raio). Como fracao, o Kuiper
+  # ficaria com +-207 blocos e nao caberia na altura do mundo.
+  espessura-faixa: 14.0
+  # Vao fixo entre corpos, em blocos. Negativo usa as distancias orbitais reais (o padrao).
+  # Zero ou mais enfileira os corpos com esse vao, ignorando as distancias: a ordem astronomica
+  # se mantem, mas da para ver todos em tamanho cheio sem atravessar milhares de blocos de vazio.
+  # O terceiro argumento de /planetas sistema sobrepoe este valor.
+  espacamento: -1
+
+# Cada corpo tem uma textura em texturas/<id>.txt (ou .png, que tem prioridade), a nao ser que
+# aponte outra com 'textura'. Os blocos de cada terreno ficam na legenda da propria textura.
+#
+#   mundo             opcional; liga o corpo a um mundo do servidor, so para o title de entrada
+#   raio              raio padrao, em blocos
+#   inclinacao-graus  inclinacao axial real
+#   escala            achatamento por eixo; 1/1/1 e uma esfera perfeita
+#   anel.bandas       multiplos do raio; 1.0 e a superficie
+#   campo             enxame de corpos, em vez de um corpo unico; formato anel ou esfera
+#   cauda             cone esparso apontando para +X (no sistema, o lado oposto ao Sol)
+#   orbita            se ausente, o corpo NAO entra no /planetas sistema
+#     ua              distancia media ao Sol
+#     de              id do corpo que este orbita (luas)
+#     interna/externa faixa em UA, para cinturoes
+#     desvio          deslocamento lateral em blocos, para corpos quase co-orbitais
+#
+# Os raios NAO estao em escala real. O Sol em escala seria 2.600 blocos com a Terra em 24.
+planetas:
+
+  # ------------------------------------------------------------------ estrela central
+  sol:
+    nome: "Sol"
+    descricao: "Estrela G2V. 99,86% de toda a massa do sistema solar."
+    cor: "#FFB300"
+    raio: 64
+    inclinacao-graus: 7.25
+    orbita: { ua: 0 }
+
+  # ------------------------------------------------------------------ planetas rochosos
+  mercurio:
+    nome: "Mercurio"
+    descricao: "Rocha nua e craterada. Sem atmosfera, sem lua."
+    cor: "#8C8C8C"
+    raio: 10
+    inclinacao-graus: 0.03
+    orbita: { ua: 0.387 }
+
+  venus:
+    nome: "Venus"
+    descricao: "Nuvens de acido sulfurico a 460 C. Gira ao contrario."
+    cor: "#E6C878"
+    raio: 22
+    inclinacao-graus: 177.4
+    orbita: { ua: 0.723 }
+
+  terra:
+    nome: "Terra"
+    mundo: "world"
+    descricao: "Mundo natal. Gravidade normal, ar respiravel."
+    cor: "#4FA3D1"
+    raio: 24
+    inclinacao-graus: 23.44
+    orbita: { ua: 1.0 }
+
+  lua:
+    nome: "Lua"
+    descricao: "Travada por mare: mostra sempre a mesma face para a Terra."
+    cor: "#CFCFCF"
+    raio: 12
+    inclinacao-graus: 6.68
+    orbita: { de: terra }
+
+  marte:
+    nome: "Marte"
+    descricao: "Deserto de oxido de ferro. Calotas polares de gelo seco."
+    cor: "#C1440E"
+    raio: 13
+    inclinacao-graus: 25.19
+    orbita: { ua: 1.524 }
+
+  # Fobos e Deimos sao asteroides capturados: batatas, nao esferas. Um 'campo' de um corpo so,
+  # centrado no ponto, da a forma irregular sem inventar outro mecanismo.
+  fobos:
+    nome: "Fobos"
+    descricao: "Cai 2 cm por ano em direcao a Marte; em 50 milhoes de anos vira um anel."
+    cor: "#9C8F80"
+    raio: 5
+    textura: asteroides
+    orbita: { de: marte }
+    campo: { quantidade: 1, corpo-min: 5, corpo-max: 5, interno: 0, externo: 0,
+             espessura: 0, irregularidade: 0.42, semente: 11 }
+
+  deimos:
+    nome: "Deimos"
+    descricao: "A menor lua de Marte; 12 km de ponta a ponta."
+    cor: "#A89B8C"
+    raio: 4
+    textura: asteroides
+    orbita: { de: marte }
+    campo: { quantidade: 1, corpo-min: 4, corpo-max: 4, interno: 0, externo: 0,
+             espessura: 0, irregularidade: 0.40, semente: 12 }
+
+  # ------------------------------------------------------------------ cinturao principal
+  asteroides:
+    nome: "Cinturao de Asteroides"
+    descricao: "Milhoes de rochas entre Marte e Jupiter; juntas dariam 3% da massa da Lua."
+    cor: "#9E9E9E"
+    raio: 40
+    inclinacao-graus: 10.0
+    orbita: { interna: 2.1, externa: 3.3 }
+    campo:
+      formato: anel
+      quantidade: 70
+      corpo-min: 2
+      corpo-max: 6
+      interno: 1.0
+      externo: 2.0
+      espessura: 0.10
+      irregularidade: 0.35
+      semente: 2024
+
+  vesta:
+    nome: "Vesta"
+    descricao: "Segundo maior do cinturao; um impacto arrancou 1% do seu volume."
+    cor: "#B0A79A"
+    raio: 6
+    textura: asteroides
+    orbita: { ua: 2.36, desvio: 90 }
+    campo: { quantidade: 1, corpo-min: 6, corpo-max: 6, interno: 0, externo: 0,
+             espessura: 0, irregularidade: 0.22, semente: 13 }
+
+  ceres:
+    nome: "Ceres"
+    descricao: "Planeta anao no cinturao. As faculas de sal da cratera Occator."
+    cor: "#A8A29B"
+    raio: 6
+    inclinacao-graus: 4.0
+    orbita: { ua: 2.77 }
+
+  # ------------------------------------------------------------------ gigantes gasosos
+  jupiter:
+    nome: "Jupiter"
+    descricao: "Gigante gasoso. A Grande Mancha Vermelha e maior que a Terra."
+    cor: "#D8A47F"
+    raio: 48
+    inclinacao-graus: 3.13
+    escala: { x: 1.0, y: 0.935, z: 1.0 }
+    orbita: { ua: 5.203 }
+
+  io:
+    nome: "Io"
+    descricao: "O corpo mais vulcanico do sistema solar: 400 vulcoes ativos."
+    cor: "#E8D44D"
+    raio: 8
+    orbita: { de: jupiter }
+
+  europa:
+    nome: "Europa"
+    descricao: "Sob a crosta de gelo ha mais agua liquida que em toda a Terra."
+    cor: "#D9CBB4"
+    raio: 7
+    orbita: { de: jupiter }
+
+  ganimedes:
+    nome: "Ganimedes"
+    descricao: "A maior lua do sistema solar; maior que Mercurio."
+    cor: "#9E9384"
+    raio: 9
+    orbita: { de: jupiter }
+
+  calisto:
+    nome: "Calisto"
+    descricao: "A superficie mais craterada que se conhece; praticamente sem geologia."
+    cor: "#6E665C"
+    raio: 8
+    orbita: { de: jupiter }
+
+  saturno:
+    nome: "Saturno"
+    descricao: "Gigante gasoso de aneis de gelo, com a Divisao de Cassini."
+    cor: "#E3C57A"
+    raio: 34
+    inclinacao-graus: 26.73
+    escala: { x: 1.0, y: 0.902, z: 1.0 }
+    orbita: { ua: 9.537 }
+    anel:
+      bandas:
+        - interno: 1.24
+          externo: 1.53
+          bloco: LIGHT_GRAY_CONCRETE
+        # O vao entre 1.53 e 1.62 e a Divisao de Cassini.
+        - interno: 1.62
+          externo: 2.10
+          bloco: WHITE_CONCRETE
+
+  tita:
+    nome: "Tita"
+    descricao: "Unica lua com atmosfera densa; tem rios e lagos de metano liquido."
+    cor: "#D99B4A"
+    raio: 9
+    orbita: { de: saturno }
+
+  encelado:
+    nome: "Encelado"
+    descricao: "Geiseres do polo sul jogam agua no espaco e alimentam o anel E."
+    cor: "#EDF5F5"
+    raio: 4
+    orbita: { de: saturno }
+
+  # ------------------------------------------------------------------ gigantes de gelo
+  urano:
+    nome: "Urano"
+    descricao: "Gigante de gelo deitado: o eixo aponta quase para o Sol."
+    cor: "#9FE3E3"
+    raio: 30
+    inclinacao-graus: 97.77
+    orbita: { ua: 19.19 }
+    anel:
+      bandas:
+        - interno: 1.65
+          externo: 1.78
+          bloco: GRAY_CONCRETE
+
+  netuno:
+    nome: "Netuno"
+    descricao: "Azul de metano. Os ventos mais rapidos do sistema solar."
+    cor: "#3E66C6"
+    raio: 29
+    inclinacao-graus: 28.32
+    orbita: { ua: 30.07 }
+
+  triton:
+    nome: "Tritao"
+    descricao: "Orbita ao contrario: foi capturado do Cinturao de Kuiper."
+    cor: "#E4D7D2"
+    raio: 7
+    inclinacao-graus: 156.9
+    orbita: { de: netuno }
+
+  # ------------------------------------------------------------------ cometa
+  halley:
+    nome: "Cometa Halley"
+    descricao: "Volta a cada 76 anos. A cauda aponta para longe do Sol, nao para tras."
+    cor: "#CFE8F0"
+    raio: 4
+    textura: cometa
+    # Fica fora da linha: a 17,8 UA ele cairia em cima de Urano.
+    orbita: { ua: 17.8, desvio: 200 }
+    campo: { quantidade: 1, corpo-min: 4, corpo-max: 4, interno: 0, externo: 0,
+             espessura: 0, irregularidade: 0.45, semente: 14 }
+    cauda:
+      comprimento: 110
+      abertura: 0.20
+      densidade: 0.06
+      bloco: WHITE_STAINED_GLASS
+
+  # ------------------------------------------------------------------ Cinturao de Kuiper
+  kuiper:
+    nome: "Cinturao de Kuiper"
+    descricao: "Disco de corpos gelados alem de Netuno; a origem dos cometas de periodo curto."
+    cor: "#8FB4C4"
+    raio: 60
+    inclinacao-graus: 5.0
+    textura: cometa
+    orbita: { interna: 30.0, externa: 50.0 }
+    campo:
+      formato: anel
+      quantidade: 90
+      corpo-min: 2
+      corpo-max: 5
+      interno: 1.0
+      externo: 2.0
+      espessura: 0.08
+      irregularidade: 0.38
+      semente: 3030
+
+  # ------------------------------------------------------------------ planetas anoes
+  plutao:
+    nome: "Plutao"
+    descricao: "Planeta anao do Cinturao de Kuiper. Rotacao retrograda."
+    cor: "#C9A88C"
+    raio: 9
+    inclinacao-graus: 122.53
+    orbita: { ua: 39.5 }
+
+  caronte:
+    nome: "Caronte"
+    descricao: "Tao grande que Plutao e ele giram em torno de um ponto no vazio entre os dois."
+    cor: "#B5AFA8"
+    raio: 5
+    orbita: { de: plutao }
+
+  haumea:
+    nome: "Haumea"
+    descricao: "Gira em 4 horas e a forca centrifuga o deixou com forma de ovo."
+    cor: "#E8E8E8"
+    raio: 9
+    inclinacao-graus: 126.0
+    escala: { x: 1.0, y: 0.44, z: 0.73 }
+    orbita: { ua: 43.1 }
+    anel:
+      bandas:
+        - interno: 2.80
+          externo: 3.00
+          bloco: LIGHT_GRAY_CONCRETE
+
+  quaoar:
+    nome: "Quaoar"
+    descricao: "Tem um anel longe demais para a teoria classica explicar."
+    cor: "#A08878"
+    raio: 5
+    orbita: { ua: 43.7, desvio: 150 }
+    anel:
+      bandas:
+        - interno: 3.40
+          externo: 3.60
+          bloco: GRAY_CONCRETE
+
+  arrokoth:
+    nome: "Arrokoth"
+    descricao: "Binario de contato: dois corpos que se encostaram devagar e ficaram grudados."
+    cor: "#B08A6E"
+    raio: 5
+    textura: asteroides
+    orbita: { ua: 44.6, desvio: -150 }
+    campo: { quantidade: 2, corpo-min: 4, corpo-max: 5, interno: 0.7, externo: 0.7,
+             espessura: 0, irregularidade: 0.30, semente: 15 }
+
+  makemake:
+    nome: "Makemake"
+    descricao: "Planeta anao de metano congelado, escuro e avermelhado."
+    cor: "#B08060"
+    raio: 6
+    orbita: { ua: 45.8, desvio: 300 }
+
+  eris:
+    nome: "Eris"
+    descricao: "O anao mais massivo. Sua descoberta rebaixou Plutao em 2006."
+    cor: "#EDEDED"
+    raio: 9
+    inclinacao-graus: 78.0
+    orbita: { ua: 67.8 }
+
+  # ------------------------------------------------------------------ longe demais para o modelo
+  # Sem 'orbita': ficariam a milhares de blocos e o modelo viraria caminhada. Renderize com
+  # /planetas render <id> para ve-los de perto.
+  sedna:
+    nome: "Sedna"
+    descricao: "Um dos objetos mais vermelhos conhecidos; leva 11 mil anos para dar uma volta."
+    cor: "#B03A2E"
+    raio: 7
+
+  oort:
+    nome: "Nuvem de Oort"
+    descricao: "Casca de trilhoes de corpos gelados a ate 100 mil UA; o limite do sistema solar."
+    cor: "#8FA9C4"
+    raio: 60
+    textura: cometa
+    campo:
+      formato: esfera
+      quantidade: 140
+      corpo-min: 1
+      corpo-max: 3
+      interno: 0.85
+      externo: 1.0
+      espessura: 0
+      irregularidade: 0.40
+      semente: 4040
+
+  # ------------------------------------------------------------------ fora do sistema solar
+  betelgeuse:
+    nome: "Betelgeuse"
+    descricao: "Supergigante vermelha. No lugar do Sol, sua superficie passaria de Jupiter."
+    cor: "#FF6B4A"
+    raio: 60
+    inclinacao-graus: 20.0
+
+  sirius:
+    nome: "Sirius"
+    descricao: "A estrela mais brilhante do ceu noturno, a 8,6 anos-luz."
+    cor: "#DDEBFF"
+    raio: 30
+
+  proxima:
+    nome: "Proxima Centauri"
+    descricao: "A estrela mais proxima do Sol; tem um planeta na zona habitavel."
+    cor: "#C1503A"
+    raio: 12
+
+  sagitario-a:
+    nome: "Sagitario A*"
+    descricao: "Buraco negro supermassivo no centro da Via Lactea; 4 milhoes de massas solares."
+    cor: "#4A2E6B"
+    raio: 20
+    inclinacao-graus: 30.0
+    textura: buraco-negro
+    anel:
+      bandas:
+        - interno: 1.50
+          externo: 2.20
+          bloco: SHROOMLIGHT
+        - interno: 2.30
+          externo: 3.10
+          bloco: ORANGE_CONCRETE
+        - interno: 3.20
+          externo: 3.80
+          bloco: RED_TERRACOTTA

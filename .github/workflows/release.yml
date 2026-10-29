@@ -1,0 +1,45 @@
+name: release
+
+on:
+  push:
+    tags: [ 'v*' ]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: temurin
+          cache: maven
+
+      - name: Conferir que a tag casa com a versao do pom
+        run: |
+          POM_VERSION="$(mvn -B -q help:evaluate -Dexpression=project.version -DforceStdout)"
+          TAG_VERSION="${GITHUB_REF_NAME#v}"
+          echo "pom=$POM_VERSION tag=$TAG_VERSION"
+          if [ "$POM_VERSION" != "$TAG_VERSION" ]; then
+            echo "::error::tag $GITHUB_REF_NAME nao casa com a versao do pom ($POM_VERSION)"
+            exit 1
+          fi
+
+      - run: mvn -B clean package
+
+      - name: Copia sem versao no nome (para a URL latest/download)
+        run: cp "target/PlanetasPlugin-${GITHUB_REF_NAME#v}.jar" "target/PlanetasPlugin.jar"
+
+      - name: Publicar release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" \
+            "target/PlanetasPlugin-${GITHUB_REF_NAME#v}.jar" \
+            "target/PlanetasPlugin.jar" \
+            --title "PlanetasPlugin $GITHUB_REF_NAME" \
+            --generate-notes
