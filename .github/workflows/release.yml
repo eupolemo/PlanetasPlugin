@@ -7,6 +7,15 @@ on:
 permissions:
   contents: write
 
+env:
+  # Versoes de Minecraft declaradas no Hangar e no Modrinth.
+  # Compilado contra a API 1.21.4. Para anunciar mais versoes, acrescente aqui
+  # DEPOIS de testar no servidor: '["1.21.4","1.21.5","1.21.6"]'
+  MC_VERSIONS: '["1.21.4"]'
+  # Slug do projeto em cada plataforma. Precisa casar com o que foi criado no site.
+  HANGAR_SLUG: 'PlanetasPlugin'
+  MODRINTH_SLUG: 'planetasplugin'
+
 jobs:
   release:
     runs-on: ubuntu-latest
@@ -28,18 +37,97 @@ jobs:
             echo "::error::tag $GITHUB_REF_NAME nao casa com a versao do pom ($POM_VERSION)"
             exit 1
           fi
+          echo "VERSION=$TAG_VERSION" >> "$GITHUB_ENV"
 
       - run: mvn -B clean package
 
       - name: Copia sem versao no nome (para a URL latest/download)
-        run: cp "target/PlanetasPlugin-${GITHUB_REF_NAME#v}.jar" "target/PlanetasPlugin.jar"
+        run: cp "target/PlanetasPlugin-${VERSION}.jar" "target/PlanetasPlugin.jar"
 
-      - name: Publicar release
+      - name: Publicar release no GitHub
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           gh release create "$GITHUB_REF_NAME" \
-            "target/PlanetasPlugin-${GITHUB_REF_NAME#v}.jar" \
+            "target/PlanetasPlugin-${VERSION}.jar" \
             "target/PlanetasPlugin.jar" \
             --title "PlanetasPlugin $GITHUB_REF_NAME" \
             --generate-notes
+
+      # --- Hangar (oficial do PaperMC) -----------------------------------------
+      # Pula sozinho enquanto o secret HANGAR_API_TOKEN nao existir.
+      - name: Publicar no Hangar
+        env:
+          HANGAR_API_TOKEN: ${{ secrets.HANGAR_API_TOKEN }}
+        run: |
+          if [ -z "$HANGAR_API_TOKEN" ]; then
+            echo "HANGAR_API_TOKEN nao configurado — pulando o Hangar."
+            exit 0
+          fi
+
+          JWT="$(curl -fsS -X POST \
+            "https://hangar.papermc.io/api/v1/authenticate?apiKey=${HANGAR_API_TOKEN}" \
+            | jq -r '.token')"
+          if [ -z "$JWT" ] || [ "$JWT" = "null" ]; then
+            echo "::error::Hangar nao devolveu JWT — token invalido ou expirado"
+            exit 1
+          fi
+
+          jq -n \
+            --arg version "$VERSION" \
+            --arg desc "Release $GITHUB_REF_NAME. Notas: https://github.com/${GITHUB_REPOSITORY}/releases/tag/${GITHUB_REF_NAME}" \
+            --argjson mc "$MC_VERSIONS" \
+            '{
+               version: $version,
+               channel: "Release",
+               description: $desc,
+               platformDependencies: { PAPER: $mc },
+               files: [ { platforms: ["PAPER"] } ]
+             }' > versionUpload.json
+
+          curl -fsS -X POST \
+            "https://hangar.papermc.io/api/v1/projects/${HANGAR_SLUG}/upload" \
+            -H "Authorization: HangarAuth ${JWT}" \
+            -F "versionUpload=@versionUpload.json;type=application/json" \
+            -F "files=@target/PlanetasPlugin-${VERSION}.jar"
+          echo
+          echo "Hangar: https://hangar.papermc.io/eupolemo/${HANGAR_SLUG}/versions/${VERSION}"
+
+      # --- Modrinth -------------------------------------------------------------
+      # Pula sozinho enquanto o secret MODRINTH_TOKEN nao existir.
+      - name: Publicar no Modrinth
+        env:
+          MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
+        run: |
+          if [ -z "$MODRINTH_TOKEN" ]; then
+            echo "MODRINTH_TOKEN nao configurado — pulando o Modrinth."
+            exit 0
+          fi
+
+          jq -n \
+            --arg name "PlanetasPlugin $VERSION" \
+            --arg version "$VERSION" \
+            --arg slug "$MODRINTH_SLUG" \
+            --arg changelog "Release $GITHUB_REF_NAME. Notas: https://github.com/${GITHUB_REPOSITORY}/releases/tag/${GITHUB_REF_NAME}" \
+            --argjson mc "$MC_VERSIONS" \
+            '{
+               name: $name,
+               version_number: $version,
+               changelog: $changelog,
+               project_id: $slug,
+               dependencies: [],
+               game_versions: $mc,
+               version_type: "release",
+               loaders: ["paper"],
+               featured: true,
+               file_parts: ["file"],
+               primary_file: "file"
+             }' > modrinth.json
+
+          curl -fsS -X POST "https://api.modrinth.com/v2/version" \
+            -H "Authorization: ${MODRINTH_TOKEN}" \
+            -H "User-Agent: eupolemo/PlanetasPlugin/${VERSION} (github.com/${GITHUB_REPOSITORY})" \
+            -F "data=@modrinth.json;type=application/json" \
+            -F "file=@target/PlanetasPlugin-${VERSION}.jar"
+          echo
+          echo "Modrinth: https://modrinth.com/plugin/${MODRINTH_SLUG}/version/${VERSION}"
