@@ -48,11 +48,20 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create "$GITHUB_REF_NAME" \
-            "target/PlanetasPlugin-${VERSION}.jar" \
-            "target/PlanetasPlugin.jar" \
-            --title "PlanetasPlugin $GITHUB_REF_NAME" \
-            --generate-notes
+          ASSETS=(
+            "target/PlanetasPlugin-${VERSION}.jar"
+            "target/PlanetasPlugin.jar"
+          )
+          # Idempotente: se a tag ja tem release (por exemplo num re-run depois
+          # de uma falha no Hangar), troca os assets em vez de abortar.
+          if gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1; then
+            echo "release $GITHUB_REF_NAME ja existe — substituindo os assets"
+            gh release upload "$GITHUB_REF_NAME" "${ASSETS[@]}" --clobber
+          else
+            gh release create "$GITHUB_REF_NAME" "${ASSETS[@]}" \
+              --title "PlanetasPlugin $GITHUB_REF_NAME" \
+              --generate-notes
+          fi
 
       # --- Hangar (oficial do PaperMC) -----------------------------------------
       # Pula sozinho enquanto o secret HANGAR_API_TOKEN nao existir.

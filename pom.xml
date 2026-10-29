@@ -6,7 +6,7 @@
 
     <groupId>com.eupolemo</groupId>
     <artifactId>PlanetasPlugin</artifactId>
-    <version>1.6.0</version>
+    <version>1.6.1</version>
     <packaging>jar</packaging>
 
     <name>PlanetasPlugin</name>
